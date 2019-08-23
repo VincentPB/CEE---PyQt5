@@ -55,8 +55,9 @@ def importer(lbl1, button):
 
 def traitement(lbl1):
     global address
-    switchOperation(address)
-    showDialog()
+    if(address!=''):
+        switchOperation(address)
+        showDialog()
 
 #=========================== OPERATION TREATMENT ============================#
 
@@ -68,27 +69,27 @@ def switchOperation(filename):
 
     if (OperationName=="TRA-EQ-15" or OperationName=="TRA-EQ-115"):
         processEQ115(filename)
-        print('CA MARCHE DE OUF')
+        print('TRAITEMENT TERMINE')
     elif (OperationName=="TRA-EQ-114" or OperationName=="TRA-EQ-14"):
         #processEQ114(filename)
-        print('CA MARCHE DE OUF')
+        print('TRAITEMENT TERMINE')
     elif (OperationName=="TRA-EQ-103" or OperationName=="TRA-EQ-03"):
         #processEQ103(filename)
-        print('CA MARCHE DE OUF')
+        print('TRAITEMENT TERMINE')
     elif (OperationName=="TRA-EQ-101" or OperationName=="TRA-EQ-01"):
         #processEQ101(filename)
-        print('CA MARCHE DE OUF')
+        print('TRAITEMENT TERMINE')
     elif (OperationName=="TRA-EQ-111" or OperationName=="TRA-EQ-11"):
         #processEQ111(filename)
-        print('CA MARCHE DE OUF')
+        print('TRAITEMENT TERMINE')
     elif (OperationName=="TRA-SE-101" or OperationName=="TRA-SE-01"):
         processSE101(filename)
-        print('CA MARCHE DE OUF')
+        print('TRAITEMENT TERMINE')
     elif (OperationName=="TRA-SE-113" or OperationName=="TRA-SE-13"):
         #processSE113(filename)
-        print('CA MARCHE DE OUF')
+        print('TRAITEMENT TERMINE')
     else:
-        return("INVALID OPERATION")
+        return("OPERATION INVALIDE")
 
 #=============================== PROCESSING =================================#
 
@@ -687,7 +688,7 @@ class Example(QWidget):
     def initUI(self):
 
         buttonI = QPushButton('IMPORTER', self)
-        buttonI.setToolTip('Lancer le traitement du fichier')
+        buttonI.setToolTip('Importer un fichier à traiter')
         buttonI.clicked.connect(lambda : importer(lbl1, buttonI))
         buttonI.move(50, 150)
         buttonI.setFont(QFont("Calibri", 12, QFont.Bold))
