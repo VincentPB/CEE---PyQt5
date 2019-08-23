@@ -599,8 +599,8 @@ def processSE113(filename):
 
 def showDialog():
     msgBox = QMessageBox()
-    msgBox.setGeometry(450,350, 200, 200)
-    msgBox.setText("<p align='center'>Le dédoublonnage a été effectué avec succès !</p>")
+    msgBox.setGeometry(500,350, 200, 200)
+    msgBox.setText("<p align='center'>Le dédoublonnage a été effectué avec succès </p>")
     msgBox.setWindowTitle("Traitement terminé")
     msgBox.setFont(QFont("Calibri", 11, QFont.Bold))
     msgBox.setStyleSheet(
@@ -608,11 +608,11 @@ def showDialog():
     " font: bold 14px;"
     " min-width: 10em;"
     " padding: 3px;"
-    " margin-right:7.5em;"
+    " margin-right:4.5em;"
     "}"
     "* {"
     " margin-right:1.8em;"
-    "min-width: 30em;"
+    "min-width: 22em;"
     "}"
     );
     msgBox.exec()
