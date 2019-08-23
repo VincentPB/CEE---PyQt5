@@ -1,19 +1,22 @@
+#Importe un fichier .xlsx puis détecte l'opération à appliquer
+#dessus pour ensuite le traiter.
+
 #=============================== IMPORTS =================================#
+
 import sys
 import os
 import os.path
 import xlrd
 import xlsxwriter
 import datetime
-import pyexcel as pe
-import json
+#import pyexcel as pe
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from xlwt import Workbook
-from xlutils.copy import copy 
+#from xlutils.copy import copy 
 from xlrd import open_workbook
 from functools import partial
 from tkinter import filedialog
@@ -46,14 +49,14 @@ def factorisation(L, Lind):
     LF=[A,indices]
     return LF
 
-def importer(lbl1, button):
+def importer(lbl1, button): #Importe un fichier et en affiche le titre
     global address
     titre = openFileNameDialog()
     titreF=os.path.basename(titre)
     address = titre
     lbl1.setText(titreF)
 
-def traitement(lbl1):
+def traitement(lbl1): #Lance le traitement du fichier
     global address
     if(address!=''):
         switchOperation(address)
@@ -598,7 +601,7 @@ def processSE113(filename):
 
 #=========================== DISPLAY FUNCTION ============================#
 
-def showDialog():
+def showDialog(): #PopUp de fin de traitement
     msgBox = QMessageBox()
     msgBox.setGeometry(500,350, 200, 200)
     msgBox.setText("<p align='center'>Le dédoublonnage a été effectué avec succès </p>")
@@ -618,7 +621,7 @@ def showDialog():
     );
     msgBox.exec()
 
-def aProposDe():
+def aProposDe(): #PopUp 'A propos'
     msgBox = QMessageBox()
     msgBox.setGeometry(510,350, 200, 200)
     msgBox.setText("<p align='center'>Cette application est une propriété</p> \n <p align='center'>Stela Produits Pétroliers</p>")
@@ -637,25 +640,12 @@ def aProposDe():
     "}"
     );
     msgBox.exec()
-
-#def importFile():
-    #filename = filedialog.askopenfilename()
-    #book = xlrd.open_workbook(filename)
-    #OperationName = book.sheet_names()[0]
-    #return (book, OperationName)
-
-#def openFileName():
-        #fileNameTemp = QFileDialog.getOpenFileName()[0]
-        #for i in range(len(fileNameTemp)-2):
-            #if (fileNameTemp[i:i+2]=='TRA'):
-                #fileName = fileNameTemp[i:]
-        #return fileName
-    
-def openFileNameDialog():
+  
+def openFileNameDialog(): #Retourne le nom du fichier sélectionné
         fileName = QFileDialog.getOpenFileName()
         return fileName[0]
 
-class MyMainWindow(QMainWindow):
+class MyMainWindow(QMainWindow): #Fenêtre
 
     def __init__(self, parent=None):
 
@@ -679,7 +669,7 @@ class MyMainWindow(QMainWindow):
         fileMenu.addAction(aPropos)
         fileMenu.addAction(exitButton)
 
-class Example(QWidget):
+class Example(QWidget): #Widget
     
     def __init__(self, parent):
         super(Example, self).__init__(parent)
@@ -711,6 +701,9 @@ class Example(QWidget):
 #================================ DISPLAY =================================#
         
 app = QApplication([])
+
+        #----------------- STYLE DARK ----------------------#
+
 app.setStyle('Fusion')  
 dark_palette = QPalette()
 dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
@@ -728,6 +721,9 @@ dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
 dark_palette.setColor(QPalette.HighlightedText, Qt.black)
 app.setPalette(dark_palette)
 app.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }")
+
+        #----------------- AFFICHAGE ----------------------#
+
 foo = MyMainWindow()
 foo.show()
 sys.exit(app.exec_())
