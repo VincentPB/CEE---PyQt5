@@ -453,10 +453,9 @@ def processSE101(filename):
         Nomi = sheetNew.cell_value(i, 1)
         Prenomi = sheetNew.cell_value(i, 0)
         SIRETi = sheetNew.cell_value(i, 3)
-        if(Nomi != '' and SIRETi != '' and Prenomi != ''):
-            ListeSIRET.append(SIRETi)
-            ListeNom.append(Nomi)
-            ListePrenom.append(Prenomi)
+        ListeSIRET.append(SIRETi)
+        ListeNom.append(Nomi)
+        ListePrenom.append(Prenomi)
         if(sheetNew.cell_value(i, 7)!='' and len(str(sheetNew.cell_value(i, 7)))==10):
 
             Datei = datetime.datetime(int(sheetNew.cell_value(i, 7)[6:]), int(sheetNew.cell_value(i, 7)[3:5]), int(sheetNew.cell_value(i, 7)[0:2]),0,0,0)
@@ -479,52 +478,47 @@ def processSE101(filename):
             Current = ListeNom[j]
             for k in range(len(ListeNom)):
                 if (k!=j and ListeNom[k]==ListeNom[j] and ListePrenom[k]==ListePrenom[j] and ListeSIRET[k]==ListeSIRET[j]):
+                    #print('All true')
                     ListeDoublon.append(sheetNew.row_values(k+6)) #DOUBLONS
                     ListeIndiceDoublon.append(k+6)
                                   
     fueillasse = PostTra.add_worksheet('TRA SE 101')
     doublons = PostTra.add_worksheet('Doublons')
 
-    V = factorisation(ListeDoublon, ListeIndiceDoublon)
-    ListeFinaleDoublons = V[0]
-    ListeIndiceDoublonF= V[1]
-
     ligneD=0
-    for i in range(len(ListeFinaleDoublons)):
-        for ind in range(9):
-            if (ind == 6 or ind == 7):
-                #q = str(xlrd.xldate.xldate_as_datetime(int(str(ListeFinaleDoublons[i][ind])[:-2]), wbNew.datemode))[:10]
-                q = ListeFinaleDoublons[i][ind]
-                #Y = q[8:10]+'/'+q[5:7]+'/'+q[:4]
-                doublons.write(ligneD,ind,q)
-                        
-            else:
-                doublons.write(ligneD,ind,str(ListeFinaleDoublons[i][ind]))
-        ligneD+=1
-
-   
+    print('BONSOIR')
+    for i in range(len(ListeDoublon)):
+        if i%2 == 0:
+            for ind in range(11):
+                if(ind==6 or ind==7):
+                    D=str(ListeDoublon[i][ind])
+                    X=D[0:4]+'/'+D[5:7]+'/'+D[8:10]
+                    doublons.write(ligneD,ind,X)
+                else:
+                    doublons.write(ligneD,ind,str(ListeDoublon[i][ind]))
+            ligneD+=1
+    ListeIndiceDoublonF=[]
+    print('BONSOIR')
+    for i in range(len(ListeIndiceDoublon)):
+        if i%2 == 0:
+            ListeIndiceDoublonF.append(ListeIndiceDoublon[i])
+            
     ligne=6
     for h1 in range(6):
         for h2 in range(8):
             fueillasse.write(h1, h2, sheetNew.row_values(h1)[h2])
-    
 
+    
     for i in range(6,len(ListeNom)):
         if (i not in ListeIndiceDoublonF):
             for ind in range(8):
                 a=sheetNew.row_values(i)[ind]
                 #if (type(a)==type(0.1) and len(str(a))==5 and (ind == 7 or ind == 8) and len(str(sheetNew.row_values(i)[ind])!=0)):
                 if(ind==6 or ind==7):
-                        #print(int(str(sheetNew.row_values(i)[ind])[:-2]))
-                    #Xi=str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10]
-                    Xi=sheetNew.cell_value(i, ind)
-                    #Xi=datetime.datetime(int(sheetNew.cell_value(i, ind)[6:]), int(sheetNew.cell_value(i, ind)[3:5]), int(sheetNew.cell_value(i, ind)[0:2]),0,0,0)
-                    #Xi=xlrd.xldate.xldate_as_datetime(sheetNew.cell_value(i, ind), wbNew.datemode)
-    
-                    #Di=Xi[0:4]+'/'+Xi[5:7]+'/'+Xi[8:10]
-                    #print(Xi)
-                    fueillasse.write(ligne, ind, Xi)
-                        
+                    Xi=str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10]
+                    Di=Xi[0:4]+'/'+Xi[5:7]+'/'+Xi[8:10]
+                    fueillasse.write(ligne, ind, Di)
+                    
                 #elif(type(a)==type('yolo') and (ind == 7 or ind == 8) and len(sheetNew.row_values(i)[ind])!=0):
                     #fueillasse.write(ligne, ind, str(datetime.date(int(sheetNew.cell_value(i, 7)[6:]), int(sheetNew.cell_value(i, 7)[3:5]), int(sheetNew.cell_value(i, 7)[0:2])))[:10])
 
@@ -532,7 +526,7 @@ def processSE101(filename):
                     fueillasse.write(ligne, ind, str(sheetNew.row_values(i)[ind])[:-2])
                 else:
                     fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
-
+ 
             ligne+=1
 
     PostTra.close()
@@ -659,7 +653,7 @@ class MyMainWindow(QMainWindow): #Fenêtre
         super(MyMainWindow, self).__init__(parent)
         self.form_widget = Example(self) 
         self.setCentralWidget(self.form_widget)
-        self.setGeometry(450, 250, 500, 250)
+        self.setGeometry(450, 250, 450, 250)
         self.setWindowTitle('Dédoublonnage')
         self.setWindowIcon(QIcon('stela.ico'))
 
@@ -687,22 +681,21 @@ class Example(QWidget): #Widget
         buttonI = QPushButton('IMPORTER', self)
         buttonI.setToolTip('Importer un fichier à traiter')
         buttonI.clicked.connect(lambda : importer(lbl1, buttonI))
-        buttonI.move(75, 150)
+        buttonI.move(50, 150)
         buttonI.setFont(QFont("Calibri", 12, QFont.Bold))
         buttonI.resize(150, 50)
 
         buttonT = QPushButton('TRAITEMENT', self)
         buttonT.setToolTip('Lancer le traitement du fichier')
         buttonT.clicked.connect(lambda : traitement(lbl1))
-        buttonT.move(275, 150)
+        buttonT.move(250, 150)
         buttonT.setFont(QFont("Calibri", 12, QFont.Bold))
         buttonT.resize(150, 50)
 
         lbl1 = QLabel('Sélectionnez un fichier à importer', self)
         lbl1.setFont(QFont("Calibri", 14, QFont.Bold))
         lbl1.setAlignment(Qt.AlignCenter)
-        lbl1.setWordWrap(True)
-        lbl1.setGeometry(75,10, 350, 100)
+        lbl1.setGeometry(60,10, 350, 100)
 
         self.show()
 
