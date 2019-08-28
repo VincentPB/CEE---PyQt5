@@ -70,26 +70,26 @@ def switchOperation(filename):
     OperationName = wbNew.sheet_names()[0]
     print(OperationName)
 
-    if (OperationName=="TRA-EQ-15" or OperationName=="TRA-EQ-115"):
+    if (("TRA-EQ-115" in OperationName) or ("TRA-EQ-15" in OperationName)):
         processEQ115(filename)
         print('TRAITEMENT TERMINE')
-    elif (OperationName=="TRA-EQ-114" or OperationName=="TRA-EQ-14"):
-        #processEQ114(filename)
+    elif (("TRA-EQ-119" in OperationName) or ("TRA-EQ-19" in OperationName)):
+        processEQ119(filename)
         print('TRAITEMENT TERMINE')
-    elif (OperationName=="TRA-EQ-103" or OperationName=="TRA-EQ-03"):
-        #processEQ103(filename)
+    elif (("TRA-EQ-103" in OperationName) or ("TRA-EQ-03" in OperationName)):
+        processEQ103(filename)
         print('TRAITEMENT TERMINE')
-    elif (OperationName=="TRA-EQ-101" or OperationName=="TRA-EQ-01"):
-        #processEQ101(filename)
+    elif (("TRA-EQ-101" in OperationName) or ("TRA-EQ-01" in OperationName)):
+        processEQ101(filename)
         print('TRAITEMENT TERMINE')
-    elif (OperationName=="TRA-EQ-111" or OperationName=="TRA-EQ-11"):
-        #processEQ111(filename)
+    elif (("TRA-EQ-111" in OperationName) or ("TRA-EQ-11" in OperationName)):
+        processEQ111(filename)
         print('TRAITEMENT TERMINE')
-    elif (OperationName=="TRA-SE-101" or OperationName=="TRA-SE-01"):
+    elif (("TRA-SE-101" in OperationName) or ("TRA-SE-01" in OperationName)):
         processSE101(filename)
         print('TRAITEMENT TERMINE')
-    elif (OperationName=="TRA-SE-113" or OperationName=="TRA-SE-13"):
-        #processSE113(filename)
+    elif (("TRA-SE-113" in OperationName) or ("TRA-SE-13" in OperationName)):
+        processSE113(filename)
         print('TRAITEMENT TERMINE')
     else:
         return("OPERATION INVALIDE")
@@ -180,16 +180,11 @@ def processEQ115(filename):
 
         #---------------------- EQ 114 ----------------------#
 
-def processEQ114(filename):
-    return("Opération TRA EQ 114")
-
-        #---------------------- EQ 103 ----------------------#
-
-def processEQ103(filename):
-
+def processEQ119(filename):
+    
     wbNew = xlrd.open_workbook(filename)
-    global Temps
-    TempsMax = datetime.datetime(Temps.year-10, Temps.month, Temps.day)
+    Temps = datetime.datetime.now()
+    TempsMax103 = datetime.datetime(Temps.year-12, Temps.month, Temps.day)
     sheetNew = wbNew.sheet_by_index(0)
     NbLines = sheetNew.nrows
     ListeImmat=[]
@@ -201,42 +196,36 @@ def processEQ103(filename):
     book1 = Workbook()
     feuil1 = book1.add_sheet('Doublons')
 
-    for i in range(1,NbLines):
+    for i in range(5,NbLines):
+        if(sheetNew.cell_value(i, 2)!='' and sheetNew.cell_value(i, 1)!=''):
+            Immati = sheetNew.cell_value(i, 2)
+            #print(str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.cell_value(i, 7))[:-2]), wbNew.datemode))[:10])
+            Datei = xlrd.xldate.xldate_as_datetime(int(str(sheetNew.cell_value(i, 1))[:-2]), wbNew.datemode)
+            ListeImmat.append(Immati)
+            ListeDate.append(Datei)
         
-        Immati = sheetNew.cell_value(i, 2)
-        ListeImmat.append(Immati)
-        if(len(str(sheetNew.cell_value(i, 6)))!=0):
-            #print(int(str(sheetNew.cell_value(i, 6))[6:]))
-            Datei = datetime.datetime(int(str(sheetNew.cell_value(i, 6))[6:]), int(str(sheetNew.cell_value(i, 6))[3:5]), int(str(sheetNew.cell_value(i, 6))[:2]),0,0,0)
-        else:
-            Datei = ''
-        #Datei = xlrd.xldate.xldate_as_datetime(sheetNew.cell_value(i, 6), wbNew.datemode)
-        ListeDate.append(Datei)
 
     PostTra = xlsxwriter.Workbook(filename[:-5]+'_POST'+'.xlsx')
-    
-    for j in range(len(ListeImmat)):
-        if(ListeDate[j] != '' and ListeDate[j]<TempsMax):
-            ListeDoublon.append(sheetNew.row_values(j+1)) #DOUBLONS
-            ListeIndiceDoublon.append(j+1)
+    for j in range(len(ListeDate)):
+        if(ListeDate[j]<TempsMax103):
+            ListeDoublon.append(sheetNew.row_values(j+5)) #DOUBLONS
+            ListeIndiceDoublon.append(j+5)
         else:
-            Current = ListeImmat[j]
             for k in range(len(ListeImmat)):
                 if (k!=j and ListeImmat[k]==ListeImmat[j]):
-                     ListeDoublon.append(sheetNew.row_values(k+1)) #DOUBLONS
-                     ListeIndiceDoublon.append(k+1)
-                 
-    fueillasse = PostTra.add_worksheet('TRA EQ 103')
+                     ListeDoublon.append(sheetNew.row_values(k+5)) #DOUBLONS
+                     ListeIndiceDoublon.append(k+5)
+               
+    fueillasse = PostTra.add_worksheet('TRA EQ 119')
     doublons = PostTra.add_worksheet('Doublons')
 
     ligneD=0
+    
     for i in range(len(ListeDoublon)):
         if i%2 == 0:
-            for ind in range(9):
-                if(ind==8 and len(str(ListeDoublon[i][ind]))!=0):
-                    p = str(xlrd.xldate.xldate_as_datetime(int(str(ListeDoublon[i][ind])[:-2]), wbNew.datemode))[:10]
-                    X = p[8:10]+'/'+p[5:7]+'/'+p[:4]
-                    doublons.write(ligneD,ind,X)
+            for ind in range(11):
+                if (ind ==1):
+                    doublons.write(ligneD, ind, str(xlrd.xldate.xldate_as_datetime(int(str(ListeDoublon[i][ind])[:-2]), wbNew.datemode))[:10])
                 else:
                     doublons.write(ligneD,ind,str(ListeDoublon[i][ind]))
             ligneD+=1
@@ -246,26 +235,23 @@ def processEQ103(filename):
         if i%2 == 0:
             ListeIndiceDoublonF.append(ListeIndiceDoublon[i])
             
-    ligne=1
-    for h1 in range(1):
-        for h2 in range(9):
+    ligne=5
+    for h1 in range(5):
+        for h2 in range(11):
             fueillasse.write(h1, h2, sheetNew.row_values(h1)[h2])
 
     
-    for i in range(1,len(ListeImmat)+1):
+    for i in range(5,len(ListeImmat)+5):
         if (i not in ListeIndiceDoublonF):
-            for ind in range(9):
-                if (ind ==5 or ind==6):
+            for ind in range(11):
+                if (ind ==1):
+                    a=str(sheetNew.row_values(i)[ind])[:-2]
+                    if(len(a)==5):
+                        fueillasse.write(ligne, ind, str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10])
+                    else:
+                        fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
+                elif(ind==5):
                     fueillasse.write(ligne, ind, str(sheetNew.row_values(i)[ind]))
-                    
-                elif(ind==4):
-                    fueillasse.write(ligne, ind, str(sheetNew.row_values(i)[ind])[:-2])
-                    
-                elif(ind==8):
-                    if(len(str(sheetNew.row_values(i)[ind])[:-2])!=0):
-                        p = str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10]
-                        X = p[8:10]+'/'+p[5:7]+'/'+p[:4]
-                        fueillasse.write(ligne, ind, X)
                 else:
                     fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
  
@@ -273,13 +259,274 @@ def processEQ103(filename):
 
     PostTra.close()
 
+        #---------------------- EQ 103 ----------------------#
+
+def processEQ103(filename):
+    wbNew = xlrd.open_workbook(filename)
+    sheetNew = wbNew.sheet_by_index(0)
+    if(sheetNew.cell_value(1, 2)!=''):
+        TITLE = sheetNew.cell_value(1, 2)
+    else:
+        TITLE = sheetNew.cell_value(1, 3)
+    if('SERIE' in TITLE):
+        processEQ103Serie(filename)
+        
+    elif('INTERNE' in TITLE):
+        processEQ103INT(filename)
+        
+    elif('EXTERNE' in TITLE):
+        processEQ103EXT(filename)
+        
+    else:
+        print('FICHIER INVALIDE')
+
+    
+        #---------------------- EQ 103 Serie ----------------------#
+
+def processEQ103Serie(filename):
+
+    wbNew = xlrd.open_workbook(filename)
+    Temps = datetime.datetime.now()
+    TempsMax103 = datetime.datetime(Temps.year-12, Temps.month, Temps.day)
+    sheetNew = wbNew.sheet_by_index(0)
+    NbLines = sheetNew.nrows
+    ListeImmat=[]
+    ListeDoublon=[]
+    ListeIndiceDoublon=[]
+    ListeDate=[]
+    fileDir=os.path.dirname(os.path.realpath(filename))
+    NameOfFile=os.path.basename(filename)
+    book1 = Workbook()
+    feuil1 = book1.add_sheet('Doublons')
+
+    for i in range(6,NbLines):
+        if(sheetNew.cell_value(i, 1)!='' and sheetNew.cell_value(i, 7)!=''):
+            Immati = sheetNew.cell_value(i, 1)
+            #print(str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.cell_value(i, 7))[:-2]), wbNew.datemode))[:10])
+            Datei = xlrd.xldate.xldate_as_datetime(int(str(sheetNew.cell_value(i, 7))[:-2]), wbNew.datemode)
+            ListeImmat.append(Immati)
+            ListeDate.append(Datei)
+        
+
+    PostTra = xlsxwriter.Workbook(filename[:-5]+'_POST'+'.xlsx')
+    for j in range(len(ListeDate)):
+        if(ListeDate[j]<TempsMax103):
+            ListeDoublon.append(sheetNew.row_values(j+6)) #DOUBLONS
+            ListeIndiceDoublon.append(j+6)
+        else:
+            for k in range(len(ListeImmat)):
+                if (k!=j and ListeImmat[k]==ListeImmat[j]):
+                     ListeDoublon.append(sheetNew.row_values(k+6)) #DOUBLONS
+                     ListeIndiceDoublon.append(k+6)
+               
+    fueillasse = PostTra.add_worksheet('TRA EQ 103 Serie')
+    doublons = PostTra.add_worksheet('Doublons')
+
+    ligneD=0
+    
+    for i in range(len(ListeDoublon)):
+        if i%2 == 0:
+            for ind in range(9):
+                if (ind ==7 or ind==8):
+                    doublons.write(ligneD, ind, str(xlrd.xldate.xldate_as_datetime(int(str(ListeDoublon[i][ind])[:-2]), wbNew.datemode))[:10])
+                else:
+                    doublons.write(ligneD,ind,str(ListeDoublon[i][ind]))
+            ligneD+=1
+    ListeIndiceDoublonF=[]
+
+    for i in range(len(ListeIndiceDoublon)):
+        if i%2 == 0:
+            ListeIndiceDoublonF.append(ListeIndiceDoublon[i])
+            
+    ligne=6
+    for h1 in range(6):
+        for h2 in range(9):
+            fueillasse.write(h1, h2, sheetNew.row_values(h1)[h2])
+
+    
+    for i in range(6,len(ListeImmat)+6):
+        if (i not in ListeIndiceDoublonF):
+            for ind in range(9):
+                if (ind ==7 or ind==8):
+                    a=str(sheetNew.row_values(i)[ind])[:-2]
+                    if(len(a)==5):
+                        fueillasse.write(ligne, ind, str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10])
+                    else:
+                        fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
+
+                else:
+                    fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
+ 
+            ligne+=1
+
+    PostTra.close()
+
+        #---------------------- EQ 103 EXT ----------------------#
+
+def processEQ103EXT(filename):
+
+    wbNew = xlrd.open_workbook(filename)
+    Temps = datetime.datetime.now()
+    TempsMax103 = datetime.datetime(Temps.year-12, Temps.month, Temps.day)
+    sheetNew = wbNew.sheet_by_index(0)
+    NbLines = sheetNew.nrows
+    ListeImmat=[]
+    ListeDoublon=[]
+    ListeIndiceDoublon=[]
+    ListeDate=[]
+    fileDir=os.path.dirname(os.path.realpath(filename))
+    NameOfFile=os.path.basename(filename)
+    book1 = Workbook()
+    feuil1 = book1.add_sheet('Doublons')
+
+    for i in range(6,NbLines):
+        if(sheetNew.cell_value(i, 2)!='' and sheetNew.cell_value(i, 8)!=''):
+            Immati = sheetNew.cell_value(i, 2)
+            #print(str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.cell_value(i, 7))[:-2]), wbNew.datemode))[:10])
+            Datei = xlrd.xldate.xldate_as_datetime(int(str(sheetNew.cell_value(i, 8))[:-2]), wbNew.datemode)
+            ListeImmat.append(Immati)
+            ListeDate.append(Datei)
+        
+
+    PostTra = xlsxwriter.Workbook(filename[:-5]+'_POST'+'.xlsx')
+    for j in range(len(ListeDate)):
+        if(ListeDate[j]<TempsMax103):
+            ListeDoublon.append(sheetNew.row_values(j+6)) #DOUBLONS
+            ListeIndiceDoublon.append(j+6)
+        else:
+            for k in range(len(ListeImmat)):
+                if (k!=j and ListeImmat[k]==ListeImmat[j]):
+                     ListeDoublon.append(sheetNew.row_values(k+6)) #DOUBLONS
+                     ListeIndiceDoublon.append(k+6)
+               
+    fueillasse = PostTra.add_worksheet('TRA EQ 103 EXT')
+    doublons = PostTra.add_worksheet('Doublons')
+
+    ligneD=0
+    
+    for i in range(len(ListeDoublon)):
+        if i%2 == 0:
+            for ind in range(10):
+                if (ind ==9 or ind==8):
+                    doublons.write(ligneD, ind, str(xlrd.xldate.xldate_as_datetime(int(str(ListeDoublon[i][ind])[:-2]), wbNew.datemode))[:10])
+                else:
+                    doublons.write(ligneD,ind,str(ListeDoublon[i][ind]))
+            ligneD+=1
+    ListeIndiceDoublonF=[]
+
+    for i in range(len(ListeIndiceDoublon)):
+        if i%2 == 0:
+            ListeIndiceDoublonF.append(ListeIndiceDoublon[i])
+            
+    ligne=6
+    for h1 in range(6):
+        for h2 in range(10):
+            fueillasse.write(h1, h2, sheetNew.row_values(h1)[h2])
+
+    
+    for i in range(6,len(ListeImmat)+6):
+        if (i not in ListeIndiceDoublonF):
+            for ind in range(10):
+                if (ind ==9 or ind==8):
+                    a=str(sheetNew.row_values(i)[ind])[:-2]
+                    if(len(a)==5):
+                        fueillasse.write(ligne, ind, str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10])
+                    else:
+                        fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
+
+                else:
+                    fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
+ 
+            ligne+=1
+
+    PostTra.close()
+
+        #---------------------- EQ 103 INT ----------------------#
+
+def processEQ103INT(filename):
+
+    wbNew = xlrd.open_workbook(filename)
+    Temps = datetime.datetime.now()
+    TempsMax103 = datetime.datetime(Temps.year-12, Temps.month, Temps.day)
+    sheetNew = wbNew.sheet_by_index(0)
+    NbLines = sheetNew.nrows
+    ListeImmat=[]
+    ListeDoublon=[]
+    ListeIndiceDoublon=[]
+    ListeDate=[]
+    fileDir=os.path.dirname(os.path.realpath(filename))
+    NameOfFile=os.path.basename(filename)
+    book1 = Workbook()
+    feuil1 = book1.add_sheet('Doublons')
+
+    for i in range(6,NbLines):
+        if(sheetNew.cell_value(i, 1)!='' and sheetNew.cell_value(i, 7)!=''):
+            Immati = sheetNew.cell_value(i, 1)
+            #print(str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.cell_value(i, 7))[:-2]), wbNew.datemode))[:10])
+            Datei = xlrd.xldate.xldate_as_datetime(int(str(sheetNew.cell_value(i, 7))[:-2]), wbNew.datemode)
+            ListeImmat.append(Immati)
+            ListeDate.append(Datei)
+        
+
+    PostTra = xlsxwriter.Workbook(filename[:-5]+'_POST'+'.xlsx')
+    for j in range(len(ListeDate)):
+        if(ListeDate[j]<TempsMax103):
+            ListeDoublon.append(sheetNew.row_values(j+6)) #DOUBLONS
+            ListeIndiceDoublon.append(j+6)
+        else:
+            for k in range(len(ListeImmat)):
+                if (k!=j and ListeImmat[k]==ListeImmat[j]):
+                     ListeDoublon.append(sheetNew.row_values(k+6)) #DOUBLONS
+                     ListeIndiceDoublon.append(k+6)
+               
+    fueillasse = PostTra.add_worksheet('TRA EQ 103 INT')
+    doublons = PostTra.add_worksheet('Doublons')
+
+    ligneD=0
+    
+    for i in range(len(ListeDoublon)):
+        if i%2 == 0:
+            for ind in range(9):
+                if (ind ==7 or ind==8):
+                    doublons.write(ligneD, ind, str(xlrd.xldate.xldate_as_datetime(int(str(ListeDoublon[i][ind])[:-2]), wbNew.datemode))[:10])
+                else:
+                    doublons.write(ligneD,ind,str(ListeDoublon[i][ind]))
+            ligneD+=1
+    ListeIndiceDoublonF=[]
+
+    for i in range(len(ListeIndiceDoublon)):
+        if i%2 == 0:
+            ListeIndiceDoublonF.append(ListeIndiceDoublon[i])
+            
+    ligne=6
+    for h1 in range(6):
+        for h2 in range(9):
+            fueillasse.write(h1, h2, sheetNew.row_values(h1)[h2])
+
+    
+    for i in range(6,len(ListeImmat)+6):
+        if (i not in ListeIndiceDoublonF):
+            for ind in range(9):
+                if (ind ==7 or ind==8):
+                    a=str(sheetNew.row_values(i)[ind])[:-2]
+                    if(len(a)==5):
+                        fueillasse.write(ligne, ind, str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10])
+                    else:
+                        fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
+
+                else:
+                    fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
+ 
+            ligne+=1
+
+    PostTra.close()
     
         #---------------------- EQ 101 ----------------------#
 
 def processEQ101(filename):
     
     wbNew = xlrd.open_workbook(filename)
-    global Temps
+    Temps = datetime.datetime.now()
     TempsMax101 = datetime.datetime(Temps.year-12, Temps.month, Temps.day)
     sheetNew = wbNew.sheet_by_index(0)
     NbLines = sheetNew.nrows
@@ -296,7 +543,7 @@ def processEQ101(filename):
         
         Immati = sheetNew.cell_value(i, 1)
         ListeImmat.append(Immati)
-        Datei = xlrd.xldate.xldate_as_datetime(sheetNew.cell_value(i, 2), wbNew.datemode)
+        Datei = xlrd.xldate.xldate_as_datetime(sheetNew.cell_value(i, 7), wbNew.datemode)
         ListeDate.append(Datei)
 
     PostTra = xlsxwriter.Workbook(filename[:-5]+'_POST'+'.xlsx')
@@ -318,8 +565,8 @@ def processEQ101(filename):
     ligneD=0
     for i in range(len(ListeDoublon)):
         if i%2 == 0:
-            for ind in range(7):
-                if (ind ==2 or ind==3 or ind==4 or ind==5):
+            for ind in range(9):
+                if (ind ==4 or ind==5 or ind==7 or ind==8):
                     doublons.write(ligneD, ind, str(xlrd.xldate.xldate_as_datetime(int(str(ListeDoublon[i][ind])[:-2]), wbNew.datemode))[:10])
                 else:
                     doublons.write(ligneD,ind,str(ListeDoublon[i][ind]))
@@ -332,14 +579,14 @@ def processEQ101(filename):
             
     ligne=6
     for h1 in range(6):
-        for h2 in range(7):
+        for h2 in range(9):
             fueillasse.write(h1, h2, sheetNew.row_values(h1)[h2])
 
     
     for i in range(6,len(ListeImmat)+6):
         if (i not in ListeIndiceDoublonF):
-            for ind in range(7):
-                if (ind ==2 or ind==3 or ind==4 or ind==5):
+            for ind in range(9):
+                if (ind ==4 or ind==5 or ind==7 or ind==8):
                     a=str(sheetNew.row_values(i)[ind])[:-2]
                     if(len(a)==5):
                         fueillasse.write(ligne, ind, str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10])
@@ -356,9 +603,10 @@ def processEQ101(filename):
         #---------------------- SE 111 ----------------------#
 
 def processEQ111(filename):
+    
     wbNew = xlrd.open_workbook(filename)
-    global Temps
-    TempsMax101 = datetime.datetime(Temps.year-10, Temps.month, Temps.day)
+    Temps = datetime.datetime.now()
+    TempsMax101 = datetime.datetime(Temps.year-12, Temps.month, Temps.day)
     sheetNew = wbNew.sheet_by_index(0)
     NbLines = sheetNew.nrows
     ListeImmat=[]
@@ -370,25 +618,25 @@ def processEQ111(filename):
     book1 = Workbook()
     feuil1 = book1.add_sheet('Doublons')
 
-    for i in range(2,NbLines):
+    for i in range(6,NbLines):
         
-        Immati = sheetNew.cell_value(i, 5)
+        Immati = sheetNew.cell_value(i, 0)
         ListeImmat.append(Immati)
-        Datei = xlrd.xldate.xldate_as_datetime(sheetNew.cell_value(i, 16), wbNew.datemode)
+        Datei = xlrd.xldate.xldate_as_datetime(sheetNew.cell_value(i, 6), wbNew.datemode)
         ListeDate.append(Datei)
 
     PostTra = xlsxwriter.Workbook(filename[:-5]+'_POST'+'.xlsx')
- 
+    
     for j in range(len(ListeImmat)):
         if(ListeDate[j]<TempsMax101):
-            ListeDoublon.append(sheetNew.row_values(j+2)) #DOUBLONS
-            ListeIndiceDoublon.append(j+2)
+            ListeDoublon.append(sheetNew.row_values(j+6)) #DOUBLONS
+            ListeIndiceDoublon.append(j+6)
         else:
             Current = ListeImmat[j]
             for k in range(len(ListeImmat)):
                 if (k!=j and ListeImmat[k]==ListeImmat[j]):
-                     ListeDoublon.append(sheetNew.row_values(k+2)) #DOUBLONS
-                     ListeIndiceDoublon.append(k+2)
+                     ListeDoublon.append(sheetNew.row_values(k+6)) #DOUBLONS
+                     ListeIndiceDoublon.append(k+6)
                  
     fueillasse = PostTra.add_worksheet('TRA EQ 111')
     doublons = PostTra.add_worksheet('Doublons')
@@ -396,8 +644,11 @@ def processEQ111(filename):
     ligneD=0
     for i in range(len(ListeDoublon)):
         if i%2 == 0:
-            for ind in range(17):
-                doublons.write(ligneD,ind,str(ListeDoublon[i][ind]))
+            for ind in range(8):
+                if (ind ==6 or ind==7):
+                    doublons.write(ligneD, ind, str(xlrd.xldate.xldate_as_datetime(int(str(ListeDoublon[i][ind])[:-2]), wbNew.datemode))[:10])
+                else:
+                    doublons.write(ligneD,ind,str(ListeDoublon[i][ind]))
             ligneD+=1
     ListeIndiceDoublonF=[]
 
@@ -405,16 +656,16 @@ def processEQ111(filename):
         if i%2 == 0:
             ListeIndiceDoublonF.append(ListeIndiceDoublon[i])
             
-    ligne=2
-    for h1 in range(2):
-        for h2 in range(17):
+    ligne=6
+    for h1 in range(6):
+        for h2 in range(8):
             fueillasse.write(h1, h2, sheetNew.row_values(h1)[h2])
 
     
-    for i in range(2,len(ListeImmat)+2):
+    for i in range(6,len(ListeImmat)+6):
         if (i not in ListeIndiceDoublonF):
-            for ind in range(17):
-                if (ind ==16):
+            for ind in range(8):
+                if (ind ==6 or ind==7):
                     a=str(sheetNew.row_values(i)[ind])[:-2]
                     if(len(a)==5):
                         fueillasse.write(ligne, ind, str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10])
@@ -433,7 +684,7 @@ def processEQ111(filename):
 def processSE101(filename):
 
     wbNew = xlrd.open_workbook(filename)
-    global Temps
+    Temps = datetime.datetime.now()
     TempsMax101 = datetime.datetime(Temps.year-3, Temps.month, Temps.day, 0, 0, 0)
     sheetNew = wbNew.sheet_by_index(0)
     NbLines = sheetNew.nrows
@@ -542,66 +793,76 @@ def processSE101(filename):
 def processSE113(filename):
     
     wbNew = xlrd.open_workbook(filename)
+    Temps = datetime.datetime.now()
+    TempsMax101 = datetime.datetime(Temps.year-12, Temps.month, Temps.day)
     sheetNew = wbNew.sheet_by_index(0)
     NbLines = sheetNew.nrows
-    ListeCartes=[]
+    ListeImmat=[]
     ListeDoublon=[]
     ListeIndiceDoublon=[]
-    ListeMatricule=[]
+    ListeDate=[]
     fileDir=os.path.dirname(os.path.realpath(filename))
-    NameOfFile=os.path.basename(filename)  
+    NameOfFile=os.path.basename(filename)
     book1 = Workbook()
     feuil1 = book1.add_sheet('Doublons')
 
     for i in range(6,NbLines):
         
-        Cartei = sheetNew.cell_value(i, 0)
-        ListeCartes.append(Cartei)
-        
-        Matriculei = sheetNew.cell_value(i, 3)
-        ListeMatricule.append(Matriculei)
+        Immati = sheetNew.cell_value(i, 0)
+        ListeImmat.append(Immati)
+        Datei = xlrd.xldate.xldate_as_datetime(sheetNew.cell_value(i, 2), wbNew.datemode)
+        ListeDate.append(Datei)
 
     PostTra = xlsxwriter.Workbook(filename[:-5]+'_POST'+'.xlsx')
     
-    for j in range(len(ListeCartes)):
-        Current = ListeCartes[j]
-        for k in range(len(ListeCartes)):
-            if (k!=j):
-                if(ListeCartes[k]==ListeCartes[j] or ListeMatricule[k]==ListeMatricule[j]):
-                    ListeDoublon.append(sheetNew.row_values(k+6)) #DOUBLONS
-                    ListeIndiceDoublon.append(k+6)
-
-    fueillasse = PostTra.add_worksheet('TRA SE 113')             
+    for j in range(len(ListeImmat)):
+        if(ListeDate[j]<TempsMax101):
+            ListeDoublon.append(sheetNew.row_values(j+6)) #DOUBLONS
+            ListeIndiceDoublon.append(j+6)
+        else:
+            Current = ListeImmat[j]
+            for k in range(len(ListeImmat)):
+                if (k!=j and ListeImmat[k]==ListeImmat[j]):
+                     ListeDoublon.append(sheetNew.row_values(k+6)) #DOUBLONS
+                     ListeIndiceDoublon.append(k+6)
+                 
+    fueillasse = PostTra.add_worksheet('TRA EQ 113')
     doublons = PostTra.add_worksheet('Doublons')
 
     ligneD=0
     for i in range(len(ListeDoublon)):
         if i%2 == 0:
-            for ind in range(9):
-                if(ind==1):
+            for ind in range(7):
+                if (ind ==2):
                     doublons.write(ligneD, ind, str(xlrd.xldate.xldate_as_datetime(int(str(ListeDoublon[i][ind])[:-2]), wbNew.datemode))[:10])
                 else:
-                    doublons.write(ligneD,ind,ListeDoublon[i][ind])
+                    doublons.write(ligneD,ind,str(ListeDoublon[i][ind]))
             ligneD+=1
     ListeIndiceDoublonF=[]
 
     for i in range(len(ListeIndiceDoublon)):
         if i%2 == 0:
             ListeIndiceDoublonF.append(ListeIndiceDoublon[i])
-
+            
     ligne=6
-
     for h1 in range(6):
-        for h2 in range(9):
+        for h2 in range(7):
             fueillasse.write(h1, h2, sheetNew.row_values(h1)[h2])
+
     
-    for i in range(6, len(ListeCartes)+6):
+    for i in range(6,len(ListeImmat)+6):
         if (i not in ListeIndiceDoublonF):
-            for ind in range(9):
-                if(ind==1):
-                    fueillasse.write(ligne, ind, str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10])
+            for ind in range(7):
+                if (ind ==2):
+                    a=str(sheetNew.row_values(i)[ind])[:-2]
+                    if(len(a)==5):
+                        fueillasse.write(ligne, ind, str(xlrd.xldate.xldate_as_datetime(int(str(sheetNew.row_values(i)[ind])[:-2]), wbNew.datemode))[:10])
+                    else:
+                        fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
+
                 else:
                     fueillasse.write(ligne, ind, sheetNew.row_values(i)[ind])
+ 
             ligne+=1
 
     PostTra.close()
