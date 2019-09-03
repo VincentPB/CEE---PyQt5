@@ -52,7 +52,7 @@ def importer(lbl1, button): #Importe un fichier et en affiche le titre
     titre = openFileNameDialog()
     titreF=os.path.basename(titre)
     address = titre
-    lbl1.setText(titreF)
+    lbl1.setText('Vous avez importé : \n\n' + titreF)
 
 def traitement(lbl1): #Lance le traitement du fichier
     global address
@@ -190,7 +190,7 @@ def process(filename, INFO, IND, TITRE):
                 Datei = datetime.datetime(1, 1, 1,0,0,0)
                 ListeDate.append(Datei)
 
-        PostTra = xlsxwriter.Workbook(filename[:-5]+'_POST'+'.xlsx')
+        PostTra = xlsxwriter.Workbook(filename[:-5]+'_DEDOUBLONNE'+'.xlsx')
         for j in range(len(ListeDate)):
             if(ListeDate[j]<TempsMax):
                 ListeDoublon.append(sheetNew.row_values(j+DEBUT)) #DOUBLONS
@@ -289,7 +289,7 @@ def processEQ103(filename, INFO):
 
 def showDialog(): #PopUp de fin de traitement
     msgBox = QMessageBox()
-    msgBox.setGeometry(500,350, 200, 200)
+    msgBox.setGeometry(475,330, 200, 200)
     msgBox.setText("<p align='center'>Le dédoublonnage a été effectué avec succès </p>")
     msgBox.setWindowTitle("Traitement terminé")
     msgBox.setFont(QFont("Calibri", 11, QFont.Bold))
@@ -309,7 +309,7 @@ def showDialog(): #PopUp de fin de traitement
 
 def aProposDe(): #PopUp 'A propos'
     msgBox = QMessageBox()
-    msgBox.setGeometry(510,350, 200, 200)
+    msgBox.setGeometry(487,330, 200, 200)
     msgBox.setText("<p align='center'>Cette application est une propriété</p> \n <p align='center'>Stela Produits Pétroliers</p>")
     msgBox.setWindowTitle("A propos")
     msgBox.setFont(QFont("Calibri", 11, QFont.Bold))
@@ -338,7 +338,7 @@ class MyMainWindow(QMainWindow): #Fenêtre
         super(MyMainWindow, self).__init__(parent)
         self.form_widget = Example(self) 
         self.setCentralWidget(self.form_widget)
-        self.setGeometry(450, 250, 500, 250)
+        self.setGeometry(400, 250, 500, 250)
         self.setWindowTitle('Dédoublonnage')
         self.setWindowIcon(QIcon('stela.ico'))
 
