@@ -1,5 +1,5 @@
-#Importe un fichier .xlsx puis détecte l'opération à appliquer
-#dessus pour ensuite le traiter.
+﻿#Importe un fichier .xlsx puis détecte l'opération à appliquer
+#pour ensuite le traiter.
 
 #=============================== IMPORTS =================================#
 
