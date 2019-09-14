@@ -1,5 +1,5 @@
 ﻿#Importe un fichier .xlsx puis détecte l'opération à appliquer
-#pour ensuite le traiter.
+#pour ensuite supprimer les douablons.
 
 #=============================== IMPORTS =================================#
 
@@ -26,7 +26,7 @@ address = ''
 
 #=============================== FUNCTIONS =================================#
 
-def factorisation(L, Lind):
+def factorisation(L, Lind): #Supprime une des entrées qui apparaissent en double.
     l = len(L)
     doubles=[[0]]*l
     indices=[]
@@ -60,7 +60,7 @@ def traitement(lbl1): #Lance le traitement du fichier
         switchOperation(address)
         showDialog()
 
-def info(filename):
+def info(filename): #Récupère les informations utiles pour le traitement d'un fichier.
 
     wbNew = xlrd.open_workbook(filename)
     sheetNew = wbNew.sheet_by_index(0)
@@ -104,7 +104,7 @@ def info(filename):
 
 #=========================== OPERATION TREATMENT ============================#
 
-def switchOperation(filename):
+def switchOperation(filename): #Applique le traitement correspondant au fichier importé.
     INFO = info(filename)
     OperationName = INFO[0]
 
@@ -143,9 +143,9 @@ def switchOperation(filename):
 
 #=============================== PROCESSING =================================#
 
-        #---------------------- EQ 115 ----------------------#
+        #---------------------- TOUS ----------------------#
 
-def process(filename, INFO, IND, TITRE):
+def process(filename, INFO, IND, TITRE): #Traie le document
  
     NbLines = INFO[1]
     NBCOL = INFO[2]
@@ -266,7 +266,7 @@ def process(filename, INFO, IND, TITRE):
 
         #---------------------- EQ 103 ----------------------#
 
-def processEQ103(filename, INFO):
+def processEQ103(filename, INFO): #Sélectionne le bon traitement (Il y a 3 opérations EQ 103 différentes)
     wbNew = xlrd.open_workbook(filename)
     sheetNew = wbNew.sheet_by_index(0)
     if(sheetNew.cell_value(1, 2)!=''):
