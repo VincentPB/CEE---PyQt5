@@ -5,8 +5,6 @@
 
 import sys
 import os
-import os.path
-import xlrd
 import xlsxwriter
 import datetime
 if hasattr(sys, 'frozen'):
@@ -14,40 +12,15 @@ if hasattr(sys, 'frozen'):
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from xlwt import Workbook
-from xlrd import open_workbook
-from functools import partial
 from tkinter import filedialog
 import pandas as pd
 from openpyxl import load_workbook
 
 #=============================== GLOBAL =================================#
 
-Temps = datetime.datetime.now()
 address = ''
 
 #=============================== FUNCTIONS =================================#
-
-def factorisation(L, Lind): #Supprime une des entrées qui apparaissent en double.
-    l = len(L)
-    doubles=[[0]]*l
-    indices=[]
-    for i in range(l):
-        dejaPresent=False
-        for j in range(l):
-            if (L[i][0] == doubles[j][0]):
-                dejaPresent = True
-        if(dejaPresent==False):
-            doubles[i]=L[i]
-            indices.append(Lind[i])
-
-    A=[]
-    for i in doubles:
-        if i!=[0]:
-            A.append(i)
-            
-    LF=[A,indices]
-    return LF
 
 def importer(lbl1, button): #Importe un fichier et en affiche le titre
     global address
@@ -61,48 +34,6 @@ def traitement(lbl1): #Lance le traitement du fichier
     if(address!=''):
         switchOperation(address)
         showDialog()
-
-def info(filename): #Récupère les informations utiles d'un fichier pour le traiter.
-
-    wbNew = xlrd.open_workbook(filename)
-    sheetNew = wbNew.sheet_by_index(0)
-    nbLines = sheetNew.nrows
-    IndicesDate=[]
-    Bool = True
-    for k in range(6):
-        ligne = sheetNew.row_values(k)
-        if Bool:
-            j=0
-            while(j<len(ligne) and ligne[j]!=''):
-                if ("DATE" in ligne[j] or 'Date' in ligne[j]):
-                    Bool=False
-                    IndicesDate.append(j)
-                    lineStart = k+1
-                j+=1
-            lineLen=j
-
-    B=False
-    lastLine=nbLines
-    for i in range(lineStart, nbLines):
-        if(len(str(sheetNew.cell_value(i, 0)))==0 and B==False):
-            lastLine = i
-            B=True
-
-    NBLINES = lastLine
-    NBCOL = lineLen
-    DEBUT = lineStart
-    INDDATE = IndicesDate
-
-    for h in range(DEBUT):
-
-        for t in range(NBCOL):
-
-            for l in range(len(sheetNew.cell_value(h, t))-3):
-
-                if('TRA' in sheetNew.cell_value(h, t)[l:l+3]):
-                    OPERATION = sheetNew.cell_value(h, t)[l+4:]
-   
-    return(OPERATION, NBLINES, NBCOL, DEBUT, INDDATE)
 
 def append_df_to_excel(filename, df, sheet_name='Sheet1', startrow=None, truncate_sheet=False, **to_excel_kwargs):
     
@@ -143,9 +74,15 @@ def switchOperation(filename): #Applique le traitement correspondant au fichier 
         print('TRAITEMENT TERMINE')
     elif (("EQ-119" in header) or ("EQ-19" in header)):
         deboublonner(filename, [2, 1], 'TRA EQ 119')
+        print('TRAITEMENT TERMINE')     
+    elif (("EQ-103" in header) and ('SERIE' in header)):
+        deboublonner(filename, [1, 7], 'TRA EQ 103 Serie')
         print('TRAITEMENT TERMINE')
-    elif (("EQ-103" in header) or ("EQ-03" in header)):
-        deboublonner(filename, INFO)
+    elif (("EQ-103" in header) and ("INTERNE" in header)):
+        deboublonner(filename, [2, 8], 'TRA EQ 103 INT')
+        print('TRAITEMENT TERMINE')
+    elif (("EQ-103" in header) and ("EXTERNE" in header)):
+        deboublonner(filename, [1, 7], 'TRA EQ 103 EXT')
         print('TRAITEMENT TERMINE')
     elif (("EQ-101" in header) or ("EQ-01" in header)):
         deboublonner(filename, [1, 7], 'TRA EQ 101')
@@ -203,28 +140,6 @@ def deboublonner(doc, indCrit, titre):
 
     PostTra.close()
     append_df_to_excel(titre + '_OVER.xlsx', d, sheet_name=titre, startrow=5, index=False)
-
-
-        #---------------------- EQ 103 ----------------------#
-
-def processEQ103(filename, INFO): #Sélectionne le bon traitement (Il y a 3 opérations EQ 103 différentes)
-    wbNew = xlrd.open_workbook(filename)
-    sheetNew = wbNew.sheet_by_index(0)
-    if(sheetNew.cell_value(1, 2)!=''):
-        TITLE = sheetNew.cell_value(1, 2)
-    else:
-        TITLE = sheetNew.cell_value(1, 3)
-    if('SERIE' in TITLE):
-        process(filename, INFO, [1, 7], 'TRA EQ 103 Serie')
-        
-    elif('INTERNE' in TITLE):
-        process(filename, INFO, [2, 8], 'TRA EQ 103 INT')
-        
-    elif('EXTERNE' in TITLE):
-        process(filename, INFO, [1, 7], 'TRA EQ 103 EXT')
-        
-    else:
-        print('FICHIER INVALIDE')
 
 #=========================== DISPLAY FUNCTION ============================#
 
